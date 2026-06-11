@@ -10,6 +10,7 @@ Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at
 |---------|-----|-----------------|
 | v1.20.3 | [`v1.20.3`](https://github.com/chainguard-actions/reviewdog-action-languagetool/tree/v1.20.3) | [`992af9f`](https://github.com/reviewdog/action-languagetool/commit/992af9f66583ba6a07bb7842342c2bdef5b745c5) |
 | v1.22.0 | [`v1.22.0`](https://github.com/chainguard-actions/reviewdog-action-languagetool/tree/v1.22.0) | [`ea19c75`](https://github.com/reviewdog/action-languagetool/commit/ea19c757470ce0dbfcbc34aec090317cef1ff0b5) |
+| v1.23.0 | [`v1.23.0`](https://github.com/chainguard-actions/reviewdog-action-languagetool/tree/v1.23.0) | [`afd06e9`](https://github.com/reviewdog/action-languagetool/commit/afd06e9b0f782c9562c92efffb66a49c09b2b4f4) |
 
 ## Privacy
 
