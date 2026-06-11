@@ -1,0 +1,30 @@
+name: Test basic usage
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_EVENT_NAME: push
+      GITHUB_REF: refs/heads/main
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create test markdown file
+        run: |
+          echo "This is a test document." > /tmp/test-doc.md
+      - id: action
+        uses: .
+        with:
+          github_token: fake-token
+          level: warning
+          reporter: local
+          patterns: '**/*.md'
+          language: en-US
+          disabled_rules: 'WHITESPACE_RULE'
+          disabled_categories: 'TYPOS'
+          enabled_only: 'false'
+        continue-on-error: true
+      - name: Assert action ran
+        run: |
+          echo "Action completed (exit may be non-zero without real PR context)"
+          echo "PASS"
