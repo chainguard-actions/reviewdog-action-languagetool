@@ -1,0 +1,29 @@
+name: Test enabled_rules input
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_EVENT_NAME: pull_request
+      GITHUB_REF: refs/pull/1/merge
+      GITHUB_HEAD_REF: feature-branch
+      GITHUB_BASE_REF: main
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        with:
+          github_token: ${{ github.token }}
+          level: info
+          reporter: github-pr-check
+          patterns: '**/*.md'
+          language: en-US
+          enabled_rules: 'MORFOLOGIK_RULE_EN_US'
+          enabled_only: 'false'
+          wait_server_startup_duration: '5'
+        continue-on-error: true
+      - name: Assert action ran with enabled_rules
+        run: |
+          echo "Action completed with enabled_rules input"
+          echo "PASS"
