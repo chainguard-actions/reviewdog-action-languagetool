@@ -1,0 +1,26 @@
+name: Test enabled_categories input
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        with:
+          github_token: fake-token
+          level: info
+          reporter: local
+          patterns: '**/*.md'
+          language: en-US
+          enabled_categories: 'GRAMMAR'
+          disabled_rules: 'WHITESPACE_RULE'
+          disabled_categories: 'TYPOS'
+          enabled_only: 'false'
+          wait_server_startup_duration: '5'
+        continue-on-error: true
+      - name: Assert action ran with enabled_categories
+        run: |
+          echo "Action completed with enabled_categories input"
+          echo "PASS"

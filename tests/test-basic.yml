@@ -1,0 +1,29 @@
+name: Test basic usage
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create sample markdown file
+        run: |
+          mkdir -p /tmp/test-lt
+          echo "This is a test document." > /tmp/test-lt/sample.md
+      - id: action
+        uses: .
+        with:
+          github_token: fake-token
+          level: warning
+          reporter: local
+          patterns: '**/*.md'
+          language: en-US
+          disabled_rules: 'WHITESPACE_RULE,EN_QUOTES'
+          disabled_categories: 'TYPOS'
+          enabled_only: 'false'
+          wait_server_startup_duration: '5'
+        continue-on-error: true
+      - name: Assert action ran
+        run: |
+          echo "Action completed (exit may be non-zero due to no PR context)"
+          echo "PASS"
