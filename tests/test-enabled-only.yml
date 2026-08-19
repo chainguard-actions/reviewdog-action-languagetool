@@ -1,4 +1,4 @@
-name: Test basic usage with custom API endpoint
+name: Test enabled_only mode
 on:
   workflow_dispatch:
 jobs:
@@ -9,21 +9,23 @@ jobs:
 
       - name: Create test markdown file
         run: |
-          mkdir -p tests/fixtures/basic
-          cat > tests/fixtures/basic/sample.md << 'EOF'
+          mkdir -p tests/fixtures/enabled-only
+          cat > tests/fixtures/enabled-only/sample.md << 'EOF'
           This is a simple test document.
           It is written in English.
           EOF
 
-      - name: Run LanguageTool action with local reporter
+      - name: Run LanguageTool action with enabled_only mode
         id: action
         uses: .
         with:
           github_token: ${{ github.token }}
           reporter: local
           level: warning
-          patterns: 'tests/fixtures/basic/**/*.md'
+          patterns: 'tests/fixtures/enabled-only/**/*.md'
           language: en-US
+          enabled_rules: 'MORFOLOGIK_RULE_EN_US'
+          enabled_only: 'true'
           custom_api_endpoint: 'https://api.languagetool.org'
           wait_server_startup_duration: '0'
         continue-on-error: true
@@ -31,10 +33,8 @@ jobs:
       - name: Assert action completed
         run: |
           echo "Action outcome: ${{ steps.action.outcome }}"
-          # The action should complete (either success or failure due to findings)
-          # We just verify it ran without a crash (exit code 0 or 1 from reviewdog)
           if [ "${{ steps.action.outcome }}" = "skipped" ]; then
             echo "FAIL: action was skipped unexpectedly"
             exit 1
           fi
-          echo "PASS: action completed"
+          echo "PASS: action completed in enabled_only mode"

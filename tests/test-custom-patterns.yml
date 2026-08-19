@@ -1,4 +1,4 @@
-name: Test basic usage with custom API endpoint
+name: Test custom file patterns
 on:
   workflow_dispatch:
 jobs:
@@ -7,22 +7,22 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - name: Create test markdown file
+      - name: Create test text file
         run: |
-          mkdir -p tests/fixtures/basic
-          cat > tests/fixtures/basic/sample.md << 'EOF'
-          This is a simple test document.
-          It is written in English.
+          mkdir -p tests/fixtures/patterns
+          cat > tests/fixtures/patterns/sample.txt << 'EOF'
+          Hello world. This is a test file.
+          It is written in plain English text.
           EOF
 
-      - name: Run LanguageTool action with local reporter
+      - name: Run LanguageTool action with txt pattern
         id: action
         uses: .
         with:
           github_token: ${{ github.token }}
           reporter: local
           level: warning
-          patterns: 'tests/fixtures/basic/**/*.md'
+          patterns: 'tests/fixtures/patterns/**/*.txt'
           language: en-US
           custom_api_endpoint: 'https://api.languagetool.org'
           wait_server_startup_duration: '0'
@@ -31,10 +31,8 @@ jobs:
       - name: Assert action completed
         run: |
           echo "Action outcome: ${{ steps.action.outcome }}"
-          # The action should complete (either success or failure due to findings)
-          # We just verify it ran without a crash (exit code 0 or 1 from reviewdog)
           if [ "${{ steps.action.outcome }}" = "skipped" ]; then
             echo "FAIL: action was skipped unexpectedly"
             exit 1
           fi
-          echo "PASS: action completed"
+          echo "PASS: action completed with txt pattern"

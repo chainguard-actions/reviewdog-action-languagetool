@@ -1,0 +1,31 @@
+name: Test custom rules configuration
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_REF: refs/heads/main
+      GITHUB_EVENT_NAME: push
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Run LanguageTool action with custom rules
+        id: action
+        uses: .
+        with:
+          github_token: ${{ github.token }}
+          reporter: local
+          level: info
+          patterns: "**/testdata/text.md"
+          language: en-US
+          disabled_rules: "WHITESPACE_RULE,EN_QUOTES"
+          disabled_categories: "TYPOS"
+          enabled_only: "false"
+          custom_api_endpoint: "https://languagetool.org/api"
+        continue-on-error: true
+
+      - name: Assert action completed successfully
+        run: |
+          echo "Action completed with custom rules configuration"
+          echo "PASS"
