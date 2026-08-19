@@ -1,4 +1,4 @@
-name: Test basic usage - clean file
+name: Test custom file patterns
 on:
   workflow_dispatch:
 jobs:
@@ -20,19 +20,19 @@ jobs:
           git remote set-url origin "$GITHUB_WORKSPACE/.git-remote" 2>/dev/null || \
             git remote add origin "$GITHUB_WORKSPACE/.git-remote"
 
-      - name: Run LanguageTool action on clean markdown file
+      - name: Run LanguageTool action with txt-only pattern (no matching files)
         id: action
         uses: .
         with:
           github_token: ${{ github.token }}
-          level: info
+          level: warning
           reporter: local
-          patterns: 'tests/fixtures/clean.md'
+          patterns: '**/*.nonexistent'
           language: en-US
           custom_api_endpoint: 'https://api.languagetoolplus.com'
           wait_server_startup_duration: '0'
 
-      - name: Assert action completed successfully
+      - name: Assert action completed successfully with no matching files
         run: |
-          echo "Action completed without error"
+          echo "Action completed with no matching files"
           echo "PASS"

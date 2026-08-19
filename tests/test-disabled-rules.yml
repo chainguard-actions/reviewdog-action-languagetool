@@ -1,4 +1,4 @@
-name: Test basic usage - clean file
+name: Test disabled rules configuration
 on:
   workflow_dispatch:
 jobs:
@@ -20,19 +20,21 @@ jobs:
           git remote set-url origin "$GITHUB_WORKSPACE/.git-remote" 2>/dev/null || \
             git remote add origin "$GITHUB_WORKSPACE/.git-remote"
 
-      - name: Run LanguageTool action on clean markdown file
+      - name: Run LanguageTool action with custom disabled rules
         id: action
         uses: .
         with:
           github_token: ${{ github.token }}
-          level: info
+          level: error
           reporter: local
           patterns: 'tests/fixtures/clean.md'
           language: en-US
+          disabled_rules: 'WHITESPACE_RULE,EN_QUOTES'
+          disabled_categories: 'TYPOS'
           custom_api_endpoint: 'https://api.languagetoolplus.com'
           wait_server_startup_duration: '0'
 
-      - name: Assert action completed successfully
+      - name: Assert action completed with custom rules configuration
         run: |
-          echo "Action completed without error"
+          echo "Action completed with custom disabled rules"
           echo "PASS"

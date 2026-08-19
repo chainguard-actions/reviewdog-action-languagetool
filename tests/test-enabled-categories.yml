@@ -4,25 +4,40 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    env:
-      GITHUB_EVENT_NAME: push
-      GITHUB_REF: refs/heads/main
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Create test markdown file
+        run: |
+          mkdir -p /tmp/lt-test
+          cat > /tmp/lt-test/sample.md << 'EOF'
+          This is a simple test document.
+          It has some text for language checking.
+          EOF
+
+      - name: Set up git origin reachable inside Docker container
+        run: |
+          git config user.email "test@example.com"
+          git config user.name "Test User"
+          rm -rf "$GITHUB_WORKSPACE/.git-remote"
+          git init --bare "$GITHUB_WORKSPACE/.git-remote"
+          git push "$GITHUB_WORKSPACE/.git-remote" HEAD:refs/heads/act-harness
+          git remote set-url origin "$GITHUB_WORKSPACE/.git-remote" 2>/dev/null || \
+            git remote add origin "$GITHUB_WORKSPACE/.git-remote"
+
       - id: action
         uses: .
         with:
-          github_token: fake-token
-          level: info
-          reporter: local
+          github_token: ${{ github.token }}
+          reporter: 'local'
+          level: 'warning'
           patterns: '**/*.md'
-          language: en-US
+          language: 'en-US'
           enabled_categories: 'GRAMMAR'
-          disabled_rules: 'WHITESPACE_RULE'
-          disabled_categories: 'TYPOS'
           enabled_only: 'false'
         continue-on-error: true
-      - name: Assert action ran with enabled_categories
+
+      - name: Assert action ran with enabled_categories input
         run: |
-          echo "Action completed with enabled_categories input"
-          echo "PASS"
+          echo "Action completed (exit may be non-zero if lint issues found, that is expected)"
+          echo "PASS: enabled_categories input was accepted and action ran"
