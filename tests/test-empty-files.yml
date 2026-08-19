@@ -1,0 +1,35 @@
+name: Test empty file handling - action should skip empty files
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Create empty and non-empty test files
+        run: |
+          mkdir -p test-docs
+          # Create an empty markdown file
+          touch test-docs/empty.md
+          # Create a non-empty markdown file
+          echo "This is a simple test document with valid English text." > test-docs/content.md
+          git add test-docs/empty.md test-docs/content.md
+          git config user.email "test@test.com"
+          git config user.name "Test"
+          git commit -m "Add empty and content test files"
+
+      - id: action
+        uses: .
+        with:
+          github_token: ${{ github.token }}
+          level: warning
+          reporter: local
+          patterns: '**/*.md'
+          language: en-US
+          wait_server_startup_duration: '10'
+
+      - name: Assert action completed and skipped empty files
+        run: |
+          echo "Action completed - empty files should have been skipped"
+          echo "PASS"

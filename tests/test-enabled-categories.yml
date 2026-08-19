@@ -4,33 +4,34 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    env:
-      GITHUB_EVENT_NAME: push
-      GITHUB_REF: refs/heads/main
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-
-      - name: Create a sample text file
+      - name: Set up git origin reachable inside Docker container
         run: |
-          mkdir -p /tmp/lt-categories-test
-          echo "This is a simple test document for enabled categories." > /tmp/lt-categories-test/sample.txt
-
+          git config user.email "test@example.com"
+          git config user.name "Test User"
+          rm -rf "$GITHUB_WORKSPACE/.git-remote"
+          git init --bare "$GITHUB_WORKSPACE/.git-remote"
+          git push "$GITHUB_WORKSPACE/.git-remote" HEAD:refs/heads/act-harness
+          git remote set-url origin "$GITHUB_WORKSPACE/.git-remote" 2>/dev/null || \
+            git remote add origin "$GITHUB_WORKSPACE/.git-remote"
+      - name: Create test markdown file
+        run: |
+          echo "This is a test file for LanguageTool." > "$GITHUB_WORKSPACE/test-enabled-categories.md"
       - id: action
         uses: .
         with:
-          github_token: fake-token
-          level: info
-          reporter: local
-          patterns: /tmp/lt-categories-test/**/*.txt
-          language: en-US
+          github_token: ${{ github.token }}
+          reporter: 'github-pr-check'
+          level: 'info'
+          patterns: '**/*.md'
+          language: 'en-US'
           enabled_categories: 'GRAMMAR'
-          disabled_rules: 'WHITESPACE_RULE,EN_QUOTES'
           disabled_categories: ''
-          enabled_only: 'false'
-          wait_server_startup_duration: '5'
+          custom_api_endpoint: 'https://api.languagetool.org'
+          wait_server_startup_duration: '0'
         continue-on-error: true
-
-      - name: Assert action ran with enabled_categories
+      - name: Assert action ran with enabled_categories input
         run: |
-          echo "Action completed with enabled_categories input (exit may be non-zero due to no PR context)"
-          echo "PASS"
+          echo "Action completed (exit may be non-zero due to no PR context)"
+          echo "PASS: enabled_categories input was accepted"

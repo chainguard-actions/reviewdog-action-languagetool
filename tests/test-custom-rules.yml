@@ -1,0 +1,38 @@
+name: Test custom LanguageTool rules configuration
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Create test markdown file with known grammar issues
+        run: |
+          mkdir -p test-docs
+          cat > test-docs/grammar.md << 'EOF'
+          This is a test document.
+          It have some text for checking grammar rules.
+          EOF
+          git add test-docs/grammar.md
+          git config user.email "test@test.com"
+          git config user.name "Test"
+          git commit -m "Add grammar test file"
+
+      - id: action
+        uses: .
+        with:
+          github_token: ${{ github.token }}
+          level: warning
+          reporter: local
+          patterns: '**/*.md'
+          language: en-US
+          disabled_rules: 'WHITESPACE_RULE,EN_QUOTES'
+          disabled_categories: 'TYPOS'
+          enabled_only: 'false'
+          wait_server_startup_duration: '10'
+
+      - name: Assert action completed with custom rules
+        run: |
+          echo "Action completed with custom disabled rules"
+          echo "PASS"

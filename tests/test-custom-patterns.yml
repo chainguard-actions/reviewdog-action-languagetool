@@ -1,4 +1,4 @@
-name: Test enabled_rules input
+name: Test custom file patterns
 on:
   workflow_dispatch:
 jobs:
@@ -6,32 +6,40 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - name: Set up git origin reachable inside Docker container
+        with:
+          fetch-depth: 0
+
+      - name: Configure git user
         run: |
           git config user.email "test@example.com"
           git config user.name "Test User"
+
+      - name: Set up git origin reachable inside Docker container
+        run: |
           rm -rf "$GITHUB_WORKSPACE/.git-remote"
           git init --bare "$GITHUB_WORKSPACE/.git-remote"
           git push "$GITHUB_WORKSPACE/.git-remote" HEAD:refs/heads/act-harness
+          git push "$GITHUB_WORKSPACE/.git-remote" --tags
           git remote set-url origin "$GITHUB_WORKSPACE/.git-remote" 2>/dev/null || \
             git remote add origin "$GITHUB_WORKSPACE/.git-remote"
-      - name: Create test markdown file
-        run: |
-          echo "This is a test file for LanguageTool." > "$GITHUB_WORKSPACE/test-enabled-rules.md"
+
       - id: action
         uses: .
         with:
           github_token: ${{ github.token }}
-          reporter: 'github-pr-check'
-          level: 'info'
-          patterns: '**/*.md'
-          language: 'en-US'
-          enabled_rules: 'UPPERCASE_SENTENCE_START'
-          disabled_rules: ''
-          custom_api_endpoint: 'https://api.languagetool.org'
+          reporter: local
+          level: warning
+          patterns: 'tests/fixtures/patterns/*.txt'
+          language: en-US
+          custom_api_endpoint: 'https://languagetool.org/api'
           wait_server_startup_duration: '0'
         continue-on-error: true
-      - name: Assert action ran with enabled_rules input
+
+      - name: Assert action ran successfully
         run: |
-          echo "Action completed (exit may be non-zero due to no PR context)"
-          echo "PASS: enabled_rules input was accepted"
+          echo "Action outcome: ${{ steps.action.outcome }}"
+          if [ "${{ steps.action.outcome }}" = "cancelled" ]; then
+            echo "FAIL: action was cancelled unexpectedly"
+            exit 1
+          fi
+          echo "PASS: action completed with custom patterns"

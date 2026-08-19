@@ -1,4 +1,4 @@
-name: Test basic usage with clean text
+name: Test LanguageTool configuration options
 on:
   workflow_dispatch:
 jobs:
@@ -28,20 +28,21 @@ jobs:
         with:
           github_token: ${{ github.token }}
           reporter: local
-          level: warning
-          patterns: 'tests/fixtures/basic/*.md'
+          level: info
+          patterns: 'tests/fixtures/options/*.md'
           language: en-US
+          disabled_rules: 'WHITESPACE_RULE,EN_QUOTES,DASH_RULE'
+          disabled_categories: 'TYPOS,TYPOGRAPHY'
+          enabled_only: 'false'
           custom_api_endpoint: 'https://languagetool.org/api'
           wait_server_startup_duration: '0'
         continue-on-error: true
 
-      - name: Assert action ran successfully
+      - name: Assert action ran with custom LanguageTool options
         run: |
           echo "Action outcome: ${{ steps.action.outcome }}"
-          # The action should complete (success or failure based on findings)
-          # For a clean text, we expect success (no errors reported)
           if [ "${{ steps.action.outcome }}" = "cancelled" ]; then
             echo "FAIL: action was cancelled unexpectedly"
             exit 1
           fi
-          echo "PASS: action completed"
+          echo "PASS: action completed with custom LanguageTool options"
