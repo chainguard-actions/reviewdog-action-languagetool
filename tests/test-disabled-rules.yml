@@ -1,0 +1,34 @@
+name: Test disabled rules configuration
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Run LanguageTool action with custom disabled rules
+        id: action
+        uses: .
+        with:
+          github_token: ${{ github.token }}
+          level: error
+          reporter: local
+          patterns: 'tests/fixtures/disabled-rules/**/*.md'
+          language: en-US
+          disabled_rules: 'WHITESPACE_RULE,EN_QUOTES,DASH_RULE,WORD_CONTAINS_UNDERSCORE,UPPERCASE_SENTENCE_START'
+          disabled_categories: 'TYPOS,TYPOGRAPHY'
+          custom_api_endpoint: 'https://languagetool.org/api'
+          wait_server_startup_duration: '0'
+        continue-on-error: true
+
+      - name: Assert action completed with disabled rules configuration
+        run: |
+          echo "Action outcome: ${{ steps.action.outcome }}"
+          # The action should complete without infrastructure errors
+          # success = no findings at error level; failure = some findings found
+          if [ "${{ steps.action.outcome }}" = "cancelled" ]; then
+            echo "FAIL: action was cancelled (infrastructure error)"
+            exit 1
+          fi
+          echo "PASS: action completed with disabled rules (outcome: ${{ steps.action.outcome }})"

@@ -14,18 +14,10 @@ SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
 # hadolint ignore=DL3006
 RUN apk --no-cache add git curl
 
-RUN wget -O /tmp/reviewdog_install.sh -q https://raw.githubusercontent.com/reviewdog/reviewdog/fd59714416d6d9a1c0692d872e38e7f8448df4fc/install.sh && \
-  sh /tmp/reviewdog_install.sh -b /usr/local/bin/ ${REVIEWDOG_VERSION} && \
-  rm /tmp/reviewdog_install.sh && \
-  wget -O /tmp/tmpl_install.sh -q https://raw.githubusercontent.com/haya14busa/tmpl/0f3ab9222c8445feb80db1783e630a8b2526a285/install.sh && \
-  sh /tmp/tmpl_install.sh -b /usr/local/bin/ ${TMPL_VERSION} && \
-  rm /tmp/tmpl_install.sh && \
-  wget -O /tmp/offset_install.sh -q https://raw.githubusercontent.com/haya14busa/offset/672ac5ecc5cae667caa8b46cead9ad822a07278b/install.sh && \
-  sh /tmp/offset_install.sh -b /usr/local/bin/ ${OFFSET_VERSION} && \
-  rm /tmp/offset_install.sh && \
-  wget -O /tmp/ghglob_install.sh -q https://raw.githubusercontent.com/haya14busa/ghglob/c28f127bd85ea42b4ef62381bd7a9861ffb1b785/install.sh && \
-  sh /tmp/ghglob_install.sh -b /usr/local/bin/ ${GHGLOB_VERSION} && \
-  rm /tmp/ghglob_install.sh
+RUN wget -O - -q https://raw.githubusercontent.com/reviewdog/reviewdog/fd59714416d6d9a1c0692d872e38e7f8448df4fc/install.sh| sh -s -- -b /usr/local/bin/ ${REVIEWDOG_VERSION} && \
+  wget -O - -q https://raw.githubusercontent.com/haya14busa/tmpl/master/install.sh| sh -s -- -b /usr/local/bin/ ${TMPL_VERSION} && \
+  wget -O - -q https://raw.githubusercontent.com/haya14busa/offset/master/install.sh| sh -s -- -b /usr/local/bin/ ${OFFSET_VERSION} && \
+  wget -O - -q https://raw.githubusercontent.com/haya14busa/ghglob/master/install.sh| sh -s -- -b /usr/local/bin/ ${GHGLOB_VERSION}
 
 COPY entrypoint.sh /entrypoint.sh
 COPY langtool.tmpl /langtool.tmpl

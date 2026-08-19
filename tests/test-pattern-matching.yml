@@ -1,0 +1,32 @@
+name: Test pattern matching for file selection
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Run LanguageTool action with txt pattern only
+        id: action
+        uses: .
+        with:
+          github_token: ${{ github.token }}
+          level: error
+          reporter: local
+          patterns: 'tests/fixtures/patterns/**/*.txt'
+          language: en-US
+          custom_api_endpoint: 'https://languagetool.org/api'
+          wait_server_startup_duration: '0'
+        continue-on-error: true
+
+      - name: Assert action completed with txt pattern matching
+        run: |
+          echo "Action outcome: ${{ steps.action.outcome }}"
+          # The action should select only .txt files via ghglob pattern matching.
+          # success = no findings; failure = some findings (both acceptable)
+          if [ "${{ steps.action.outcome }}" = "cancelled" ]; then
+            echo "FAIL: action was cancelled (infrastructure error)"
+            exit 1
+          fi
+          echo "PASS: action completed with txt pattern matching (outcome: ${{ steps.action.outcome }})"

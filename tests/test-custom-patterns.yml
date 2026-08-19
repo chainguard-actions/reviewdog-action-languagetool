@@ -1,0 +1,26 @@
+name: Test custom file patterns
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_REF: refs/heads/main
+      GITHUB_EVENT_NAME: push
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - id: action
+        uses: .
+        with:
+          github_token: ${{ github.token }}
+          reporter: local
+          level: info
+          language: en-US
+          patterns: '**/*.txt'
+          wait_server_startup_duration: '5'
+
+      - name: Assert action completed successfully with txt pattern
+        run: |
+          echo "Action completed with custom txt pattern"
+          echo "PASS"

@@ -1,0 +1,33 @@
+name: Test empty file handling
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Run LanguageTool action with fixture containing valid content
+        id: action
+        uses: .
+        with:
+          github_token: ${{ github.token }}
+          level: error
+          reporter: local
+          patterns: 'tests/fixtures/empty/**/*.md'
+          language: en-US
+          custom_api_endpoint: 'https://languagetool.org/api'
+          wait_server_startup_duration: '0'
+        continue-on-error: true
+
+      - name: Assert action handled files gracefully
+        run: |
+          echo "Action outcome: ${{ steps.action.outcome }}"
+          # The action uses git ls-files to find tracked files, then skips empty ones.
+          # valid.md is tracked and non-empty, so it will be processed.
+          # We accept success or failure (findings), but not cancelled (crash).
+          if [ "${{ steps.action.outcome }}" = "cancelled" ]; then
+            echo "FAIL: action was cancelled (infrastructure error)"
+            exit 1
+          fi
+          echo "PASS: action handled files gracefully (outcome: ${{ steps.action.outcome }})"

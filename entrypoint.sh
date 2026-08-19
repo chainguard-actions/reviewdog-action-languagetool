@@ -37,7 +37,7 @@ fi
 
 # Disable glob to handle glob patterns with ghglob command instead of with shell.
 set -o noglob
-FILES="$(git ls-files | ghglob "${INPUT_PATTERNS}")"
+FILES="$(git ls-files | ghglob ${INPUT_PATTERNS})"
 set +o noglob
 
 # To manage whitespaces in filepath
