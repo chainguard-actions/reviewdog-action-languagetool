@@ -1,4 +1,4 @@
-name: Test basic usage with custom API endpoint
+name: Test custom disabled rules configuration
 on:
   workflow_dispatch:
 jobs:
@@ -7,22 +7,24 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - name: Create test markdown file with grammar issues
+      - name: Create test markdown file
         run: |
-          mkdir -p tests/fixtures/basic
-          cat > tests/fixtures/basic/sample.md << 'EOF'
-          It doesn't works on an unix environment.
+          mkdir -p tests/fixtures/rules
+          cat > tests/fixtures/rules/sample.md << 'EOF'
+          This is a simple sentence.
           EOF
 
-      - name: Run LanguageTool action with public API endpoint
+      - name: Run LanguageTool action with custom disabled rules
         id: action
         uses: .
         with:
           github_token: ${{ github.token }}
           reporter: local
-          level: warning
-          patterns: 'tests/fixtures/basic/**/*.md'
+          level: info
+          patterns: 'tests/fixtures/rules/**/*.md'
           language: en-US
+          disabled_rules: 'WHITESPACE_RULE,EN_QUOTES'
+          disabled_categories: 'TYPOS'
           custom_api_endpoint: 'https://languagetool.org/api'
           wait_server_startup_duration: '0'
         continue-on-error: true
@@ -30,11 +32,8 @@ jobs:
       - name: Assert action ran without unexpected failure
         run: |
           echo "Action outcome: ${{ steps.action.outcome }}"
-          # The action may exit with non-zero if reviewdog finds issues (expected)
-          # or succeed if no issues found. Either is acceptable for basic smoke test.
-          # We just verify it didn't crash with a setup/infrastructure error.
           if [ "${{ steps.action.outcome }}" = "skipped" ]; then
             echo "FAIL: action was skipped unexpectedly"
             exit 1
           fi
-          echo "PASS: action ran (outcome=${{ steps.action.outcome }})"
+          echo "PASS: action ran with custom rules (outcome=${{ steps.action.outcome }})"

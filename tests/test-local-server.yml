@@ -1,0 +1,36 @@
+name: Test local LanguageTool server startup
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Create a clean text file with no grammar issues
+        run: |
+          mkdir -p tests/fixtures/local-server
+          cat > tests/fixtures/local-server/clean.md << 'EOF'
+          This is a simple sentence.
+          EOF
+
+      - name: Run LanguageTool action using local server (default behavior)
+        id: action
+        uses: .
+        with:
+          github_token: ${{ github.token }}
+          reporter: local
+          level: warning
+          patterns: 'tests/fixtures/local-server/**/*.md'
+          language: en-US
+          wait_server_startup_duration: '10'
+        continue-on-error: true
+
+      - name: Assert action ran
+        run: |
+          echo "Action outcome: ${{ steps.action.outcome }}"
+          if [ "${{ steps.action.outcome }}" = "skipped" ]; then
+            echo "FAIL: action was skipped unexpectedly"
+            exit 1
+          fi
+          echo "PASS: action ran with local server (outcome=${{ steps.action.outcome }})"

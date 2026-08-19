@@ -1,4 +1,4 @@
-name: Test custom_api_endpoint input
+name: Test custom API endpoint
 on:
   workflow_dispatch:
 jobs:
@@ -6,21 +6,29 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      # Use the public LanguageTool API to avoid starting a local Java server.
+      # testdata/text.md is committed and will be picked up by the pattern.
+      # continue-on-error because reviewdog may exit non-zero when findings exist.
       - id: action
         uses: .
-        with:
-          github_token: fake-token
-          level: error
-          reporter: local
-          patterns: '**/*.md'
-          language: en-US
-          disabled_rules: 'WHITESPACE_RULE'
-          disabled_categories: 'TYPOS'
-          enabled_only: 'false'
-          custom_api_endpoint: 'https://languagetool.org/api'
-          wait_server_startup_duration: '3'
         continue-on-error: true
-      - name: Assert action ran with custom_api_endpoint
+        with:
+          github_token: ${{ github.token }}
+          reporter: local
+          level: warning
+          patterns: "testdata/text.md"
+          language: en-US
+          custom_api_endpoint: "https://api.languagetool.org"
+        env:
+          GITHUB_WORKSPACE: ${{ github.workspace }}
+      - name: Assert action ran with custom API endpoint
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
         run: |
-          echo "Action completed with custom_api_endpoint input"
-          echo "PASS"
+          echo "Action outcome: $OUTCOME"
+          if [ "$OUTCOME" = "success" ] || [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action ran with custom API endpoint (outcome=$OUTCOME)"
+          else
+            echo "FAIL: unexpected outcome: $OUTCOME"
+            exit 1
+          fi
