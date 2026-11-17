@@ -1,0 +1,36 @@
+name: Test custom language and rule options
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Ensure fixtures are tracked by git
+        run: |
+          if ! git ls-files | grep -q '^tests/fixtures/languagetool-de/sample.md$'; then
+            git add -f tests/fixtures/languagetool-de
+          fi
+          git ls-files | grep '^tests/fixtures/languagetool-de/' || { echo "FAIL: fixtures not tracked"; exit 1; }
+      - id: action
+        uses: .
+        with:
+          reporter: local
+          level: warning
+          language: de-DE
+          patterns: 'tests/fixtures/languagetool-de/*.md'
+          enabled_categories: 'GRAMMAR'
+          disabled_categories: ''
+          disabled_rules: ''
+          enabled_only: 'false'
+          wait_server_startup_duration: '40'
+      - name: Assert action succeeded
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" != "success" ]; then
+            echo "FAIL: expected success"
+            exit 1
+          fi
+          echo "PASS"
