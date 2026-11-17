@@ -18,6 +18,7 @@ Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at
 | v1.22.0 | [`v1.22.0`](https://github.com/chainguard-actions/reviewdog-action-languagetool/tree/v1.22.0) | [`ea19c75`](https://github.com/reviewdog/action-languagetool/commit/ea19c757470ce0dbfcbc34aec090317cef1ff0b5) | [`HARDENING.md`](https://github.com/chainguard-actions/reviewdog-action-languagetool/blob/v1.22.0/HARDENING.md) |
 | v1.23 | [`v1.23`](https://github.com/chainguard-actions/reviewdog-action-languagetool/tree/v1.23) | [`afd06e9`](https://github.com/reviewdog/action-languagetool/commit/afd06e9b0f782c9562c92efffb66a49c09b2b4f4) | — |
 | v1.23.0 | [`v1.23.0`](https://github.com/chainguard-actions/reviewdog-action-languagetool/tree/v1.23.0) | [`afd06e9`](https://github.com/reviewdog/action-languagetool/commit/afd06e9b0f782c9562c92efffb66a49c09b2b4f4) | [`HARDENING.md`](https://github.com/chainguard-actions/reviewdog-action-languagetool/blob/v1.23.0/HARDENING.md) |
+| v1.24.0 | [`v1.24.0`](https://github.com/chainguard-actions/reviewdog-action-languagetool/tree/v1.24.0) | [`7d3a8b5`](https://github.com/reviewdog/action-languagetool/commit/7d3a8b5e6ca46585fc7cdbf9fee76ad359216953) | [`HARDENING.md`](https://github.com/chainguard-actions/reviewdog-action-languagetool/blob/v1.24.0/HARDENING.md) |
 
 ## Privacy
 
